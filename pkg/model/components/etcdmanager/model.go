@@ -452,7 +452,6 @@ func (b *EtcdManagerBuilder) buildPod(etcdCluster *kops.EtcdClusterSpec) (*v1.Po
 	}
 
 	envMap := env.BuildSystemComponentEnvVars(&b.Cluster.Spec)
-
 	container.Env = envMap.ToEnvVars()
 
 	{

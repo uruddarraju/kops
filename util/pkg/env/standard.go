@@ -17,8 +17,10 @@ limitations under the License.
 package env
 
 import (
+	"k8s.io/klog"
 	"os"
 	"sort"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/kops/pkg/apis/kops"
@@ -62,6 +64,15 @@ func BuildSystemComponentEnvVars(spec *kops.ClusterSpec) EnvVars {
 
 	// Digital Ocean related values.
 	vars.addEnvVariableIfExist("DIGITALOCEAN_ACCESS_TOKEN")
+
+	// if user passes envs with ETD_ prefix during kops commands, we attach them to the etd manager pod
+	for _, e := range os.Environ() {
+		if strings.HasPrefix(e, "ETCD_") {
+			envPair := strings.SplitN(e, "=", 2)
+			klog.Infof("Overwriting etcd setting %s with value %s", envPair[0], envPair[1])
+			vars.addEnvVariableIfExist(envPair[0])
+		}
+	}
 
 	return vars
 }
